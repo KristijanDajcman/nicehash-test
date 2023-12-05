@@ -13,6 +13,10 @@ public:
     void setEcl(std::string ecl) { this->ecl = ecl; }
     void setPid(std::string pid) { this->pid = pid; }
     void setValid(bool valid) { this->valid = valid; }
+    std::string toString()
+    {
+        return "byr: " + std::to_string(byr) + " iyr: " + std::to_string(iyr) + " eyr: " + std::to_string(eyr) + " cid: " + std::to_string(cid) + " hgt: " + hgt + " hcl: " + hcl + " ecl " + ecl + " pid: " + pid;
+    }
 
 private:
     int byr;

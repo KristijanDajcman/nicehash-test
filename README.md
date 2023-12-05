@@ -56,7 +56,7 @@ what value is in the accumulator?**
 ## Test 2
 The automatic passport scanners are slow because they're having trouble detecting which
 passports have all required fields. The expected fields are as follows:
-- byr(Birth Year)
+- byr (Birth Year)
 - iyr (Issue Year)
 - eyr (Expiration Year)
 - hgt (Height)
