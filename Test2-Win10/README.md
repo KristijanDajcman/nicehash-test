@@ -1,6 +1,6 @@
 # Test 2
 
-Run with `./Test2-Win10 [path to data] [number of threads]`
+Run with `./Test2-Win10.exe [path to data] [number of threads]`
 For example `./Test2-Win10.exe Test2.txt 2`
 
 ---
