@@ -7,7 +7,7 @@
 
 using namespace std;
 
-std::vector<std::string> readdata(std::ifstream& inputFile)
+std::vector<std::string> readData(std::ifstream& inputFile)
 {
     std::string line;
     std::vector<std::string> passportData;
@@ -28,15 +28,14 @@ Passport parsePassport(std::string data)
         std::string key = token.substr(1, 4);
         std::string value = token.substr(5);
 
-        if (key == "hcl:") passport.setHcl(value);
-        else if (key == "ecl:") passport.setEcl(value);
-        else if (key == "eyr:") passport.setEyr(value);
-        else if (key == "pid:") passport.setPid(value);
-        else if (key == "iyr:") passport.setIyr(value);
-        else if (key == "hgt:") passport.setHgt(value);
-        else if (key == "byr:") passport.setByr(value);
-        else if (key == "cid:") passport.setCid(value);
-        //else std::cout << "key: " << key << " value: " << value << std::endl;
+        if (key == "hcl") passport.setHcl(value);
+        else if (key == "ecl") passport.setEcl(value);
+        else if (key == "eyr") passport.setEyr(value);
+        else if (key == "pid") passport.setPid(value);
+        else if (key == "iyr") passport.setIyr(value);
+        else if (key == "hgt") passport.setHgt(value);
+        else if (key == "byr") passport.setByr(value);
+        else if (key == "cid") passport.setCid(value);
     }
 
     return passport;
@@ -44,7 +43,7 @@ Passport parsePassport(std::string data)
 
 int main()
 {
-    std::string path = "../data/Test2.txt";
+    std::string path = "/mnt/extraExt4/Projects/nicehash-test/Test2/data/Test2.txt";
     std::ifstream inputFile(path);
 
     if (!inputFile.is_open())
@@ -52,26 +51,23 @@ int main()
         std::cerr << "Error opening file!" << std::endl;
         return 1;
     }
-    std::vector<std::string> passportVector = readdata(inputFile);
+    std::vector<std::string> passportVector = readData(inputFile);
     inputFile.close();
 
     // build the passport vector
     std::vector<Passport> passports;
-    std::string passportData = "@";
+    std::string passportData;
 
     for (auto line : passportVector)
     {
-        if (line.size() == 2)
+        if (line == "\r")
         {
-            return 1;
-            std::cout << "passport added" << std::endl;
             passports.push_back(parsePassport(passportData));
             passportData.clear();
         }
         else
         {
             passportData += " " + line;
-            cout << passportData  << " + " << line << endl;
         }
     }
 
