@@ -10,7 +10,7 @@ For example `./Test2-Win10.exe 1 Test2.txt`
 
 ## Execution time difference
 
-**3 Experiments per thread.**
+**5 Experiments per thread.**
 | Threads |  1st  |  2nd  |  3rd  |  4th  |  5th  |  Average  |
 |:-------:|:-----:|:-----:|:-----:|:-----:|:-----:|:---------:|
 |    1    |  845  |  767  |  834  |  871  |  823  |   828.0   |
