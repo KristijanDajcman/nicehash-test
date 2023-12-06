@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <vector>
 
 using namespace std;
@@ -13,7 +14,7 @@ enum Operation
 
 struct Instruction
 {
-    string operation;
+    Operation operation;
     int argument;
 };
 
@@ -32,8 +33,15 @@ Env getEnv(ifstream& inputFile)
     while (getline(inputFile, line))
     {
         Instruction i = Instruction();
-        i.operation = line.substr(0, 3);
+        if (line.substr(0, 3) == "nop")
+            i.operation = Operation::NOP;
+        else if (line.substr(0, 3) == "acc")
+            i.operation = Operation::ACC;
+        else if (line.substr(0, 3) == "jmp")
+            i.operation = Operation::JMP;
+
         i.argument = stoi(line.substr(4));
+        env.instructions.push_back(i);
     }
     return env;
 }
@@ -50,4 +58,26 @@ int main()
     }
 
     Env env = getEnv(inputFile);
+
+    while (env.index < env.instructions.size())
+    {
+        Instruction instruction = env.instructions[env.index];
+        switch (instruction.operation)
+        {
+        case Operation::NOP:
+            env.index++;
+            break;
+        case Operation::ACC:
+            env.accumulator += instruction.argument;
+            env.index++;
+            break;
+        case Operation::JMP:
+            env.index = instruction.argument;
+            break;
+        default:
+            break;
+        }
+    }
+
+    cout << "Accumulator end value: " << env.accumulator << endl;
 }
