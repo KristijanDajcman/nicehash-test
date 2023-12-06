@@ -46,9 +46,12 @@ Env getEnv(ifstream& inputFile)
     return env;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-    std::string path = "/mnt/extraExt4/Projects/nicehash-test/Test1/data/Test1.txt";
+    // Parse command line arguments
+    std::string path = "Test1.txt";
+    if (argc > 1)
+        path = argv[1];
     std::ifstream inputFile(path);
 
     if (!inputFile.is_open())
