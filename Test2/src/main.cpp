@@ -3,66 +3,95 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include "passport.cpp"
+#include <thread>
+#include <mutex>
+#include <chrono>
 
 using namespace std;
 
-std::vector<std::string> readData(std::ifstream& inputFile)
+mutex myMutex;
+
+vector<string> readData(ifstream& inputFile)
 {
-    std::string line;
-    std::vector<std::string> passportData;
-    while (std::getline(inputFile, line))
+    string line;
+    vector<string> passportData;
+    while (getline(inputFile, line))
         passportData.push_back(line);
 
     return passportData;
 }
 
-Passport parsePassport(std::string data)
+bool validate(string data)
 {
-    std::cout << data << std::endl;
-    Passport passport;
-    std::istringstream iss(data);
-    std::string token;
+    istringstream iss(data);
+    string token;
+
+    int n_valid = 0;
 
     while (iss >> token) {
-        std::string key = token.substr(1, 4);
-        std::string value = token.substr(5);
+        string key = token.substr(0, 3);
+        string value = token.substr(4);
 
-        if (key == "hcl") passport.setHcl(value);
-        else if (key == "ecl") passport.setEcl(value);
-        else if (key == "eyr") passport.setEyr(value);
-        else if (key == "pid") passport.setPid(value);
-        else if (key == "iyr") passport.setIyr(value);
-        else if (key == "hgt") passport.setHgt(value);
-        else if (key == "byr") passport.setByr(value);
-        else if (key == "cid") passport.setCid(value);
+        if (key == "hcl") n_valid++;
+        else if (key == "ecl") n_valid++;
+        else if (key == "eyr") n_valid++;
+        else if (key == "pid") n_valid++;
+        else if (key == "iyr") n_valid++;
+        else if (key == "hgt") n_valid++;
+        else if (key == "byr") n_valid++;
     }
-
-    return passport;
+    if (n_valid >= 7)
+        return true;
+    else
+        return false;
 }
 
-int main()
+void validCount(vector<string>& passports, size_t& valid, size_t start, size_t end)
 {
-    std::string path = "/mnt/extraExt4/Projects/nicehash-test/Test2/data/Test2.txt";
-    std::ifstream inputFile(path);
+    for (int i = start; i < end; i++)
+    {
+        if (validate(passports[i]))
+        {
+            myMutex.lock();
+            valid++;
+            myMutex.unlock();
+        }
+    }
+}
 
+int main(int argc, char* argv[])
+{
+    int numThreads = 1;
+    string path = "Test2.txt";
+
+    // Check if there are command line arguments
+    if (argc > 1) {
+        // Parse command line arguments
+        numThreads = stoi(argv[1]);
+
+        if (argc > 2) {
+            path = argv[2];
+        }
+    }
+
+    // Read data
+    ifstream inputFile(path);
     if (!inputFile.is_open())
     {
-        std::cerr << "Error opening file!" << std::endl;
+        cerr << "Error opening file!" << endl;
         return 1;
     }
-    std::vector<std::string> passportVector = readData(inputFile);
+    vector<string> passportRaw = readData(inputFile);
+    vector<string> passportStrings;
     inputFile.close();
 
-    // build the passport vector
-    std::vector<Passport> passports;
-    std::string passportData;
+    string passportData;
 
-    for (auto line : passportVector)
+    for (string line : passportRaw)
     {
-        if (line == "\r")
+        if (line.size() <= 2)  // \r or \n do not work
         {
-            passports.push_back(parsePassport(passportData));
+            passportStrings.push_back(passportData);
             passportData.clear();
         }
         else
@@ -71,15 +100,34 @@ int main()
         }
     }
 
-    // Process the last passport entry in case the file doesn't end with an empty line
-    if (!passportData.empty()) {
-        std::cout << "Doesn't end with an empty line" << std::endl;
-        passports.push_back(parsePassport(passportData));
+    int partSize = passportStrings.size() / numThreads;
+    static size_t valid = 0;
+    vector<thread> threads;
+    auto start_time = chrono::high_resolution_clock::now(); // <-- Timer starts here
+    for (int i = 0; i < numThreads; i++)
+    {
+        size_t start = i * partSize;
+        size_t end;
+        if (i == numThreads - 1)
+            end = passportStrings.size();
+        else
+            end = (i + 1) * partSize;
+        threads.emplace_back(validCount, ref(passportStrings), ref(valid), start, end);
     }
 
-    for (auto passport : passports)
-        cout << passport.toString() << endl;
-    std::cout << "number of passports: " << passports.size() << std::endl;
+    for (auto& thread : threads)
+        thread.join();
 
+    auto end_time = chrono::high_resolution_clock::now(); // <-- Timer ends here
+    auto duration = chrono::duration_cast<chrono::microseconds>(end_time - start_time);
+
+    if (numThreads == 1)
+        cout << "Threading: Single-threaded" << endl;
+    else
+        cout << "Threading: Multi-threaded (" << numThreads << " threads)" << endl;
+    cout << "Sample size: " << passportStrings.size() << endl;
+    cout << "Valid: " << valid << endl;
+    cout << "Invalid: " << passportStrings.size() - valid << endl;
+    cout << "Execution time: " << duration.count() << " microseconds" << endl;
     return 0;
 }

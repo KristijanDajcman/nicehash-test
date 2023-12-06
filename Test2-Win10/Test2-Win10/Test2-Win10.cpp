@@ -123,10 +123,10 @@ int main(int argc, char* argv[])
     auto duration = chrono::duration_cast<chrono::microseconds>(end_time - start_time);
 
     if (numThreads == 1)
-        cout << "Threading: Singlethreaded" << endl;
+        cout << "Threading: Single-threaded" << endl;
     else
-        cout << "Threading: Multithreaded (" << numThreads << " threads)" << endl;
-    cout << "Vector size: " << passportStrings.size() << endl;
+        cout << "Threading: Multi-threaded (" << numThreads << " threads)" << endl;
+    cout << "Samplesize: " << passportStrings.size() << endl;
     cout << "Valid: " << valid<< endl;
     cout << "Invalid: " << passportStrings.size() - valid << endl;
     cout << "Execution time: " << duration.count() << " microseconds" << endl;
